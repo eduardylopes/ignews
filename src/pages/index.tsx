@@ -32,7 +32,12 @@ export default function Home({ product }: HomeProps) {
           <SubscribeButton priceId={product.priceId} />
         </section>
         <div className={styles.image}>
-          <Image src="/images/avatar.svg" alt="Girl coding" layout="fill" />
+          <Image
+            src="/images/avatar.svg"
+            alt="Girl coding"
+            layout="fill"
+            priority
+          />
         </div>
       </main>
     </>

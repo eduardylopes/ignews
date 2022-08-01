@@ -4,6 +4,7 @@ import { RichText } from '@graphcms/rich-text-react-renderer';
 import Head from 'next/head';
 import { ElementNode } from '@graphcms/rich-text-types';
 import styles from './post.module.scss';
+import { getSession } from 'next-auth/react';
 
 interface PostProps {
   post: {
@@ -46,8 +47,17 @@ const GET_POST_BY_SLUG = gql`
 `;
 
 export const getServerSideProps = async ({ req, params }) => {
-  // const session = await getSession({ req });
+  const session = await getSession({ req });
   const { slug } = params;
+
+  if (!session.activeSubscription) {
+    return {
+      redirect: {
+        destination: '/',
+        permanent: false,
+      },
+    };
+  }
 
   const { data } = await client.query({
     query: GET_POST_BY_SLUG,

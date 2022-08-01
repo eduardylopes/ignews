@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client';
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { client } from '../../services/apollo';
 
 import styles from './styles.module.scss';
@@ -18,7 +19,6 @@ type PostProps = {
 };
 
 export default function Posts({ posts }: PostProps) {
-  console.log(posts);
   return (
     <>
       <Head>
@@ -28,11 +28,13 @@ export default function Posts({ posts }: PostProps) {
       <main className={styles.container}>
         <div className={styles.posts}>
           {posts.map((post) => (
-            <a href="#" key={post.id}>
-              <time>{post.publishedAt}</time>
-              <strong>{post.title}</strong>
-              <p>{post.firstParagraph}</p>
-            </a>
+            <Link href={`/posts/${post.slug}`} key={post.id}>
+              <a>
+                <time>{post.publishedAt}</time>
+                <strong>{post.title}</strong>
+                <p>{post.firstParagraph}</p>
+              </a>
+            </Link>
           ))}
         </div>
       </main>

@@ -5,7 +5,20 @@ import { client } from '../../services/apollo';
 
 import styles from './styles.module.scss';
 
-export default function Posts() {
+interface Post {
+  id: string;
+  title: string;
+  firstParagraph: string;
+  slug: string;
+  publishedAt: string;
+}
+
+type PostProps = {
+  posts: Post[];
+};
+
+export default function Posts({ posts }: PostProps) {
+  console.log(posts);
   return (
     <>
       <Head>
@@ -14,22 +27,13 @@ export default function Posts() {
 
       <main className={styles.container}>
         <div className={styles.posts}>
-          <a href="#">
-            <time>12 de março de 2021</time>
-            <strong>Creating a Monorepo with Lerna</strong>
-            <p>
-              In this guide, you will learn how to create a Monorepo to multiple
-              packages with a shared
-            </p>
-          </a>
-          <a href="#">
-            <time>12 de março de 2021</time>
-            <strong>Creating a Monorepo with Lerna</strong>
-            <p>
-              In this guide, you will learn how to create a Monorepo to multiple
-              packages with a shared
-            </p>
-          </a>
+          {posts.map((post) => (
+            <a href="#" key={post.id}>
+              <time>{post.publishedAt}</time>
+              <strong>{post.title}</strong>
+              <p>{post.firstParagraph}</p>
+            </a>
+          ))}
         </div>
       </main>
     </>
@@ -42,6 +46,7 @@ const GET_POSTS = gql`
       publishedAt
       slug
       title
+      firstParagraph
       id
     }
   }
@@ -50,7 +55,18 @@ const GET_POSTS = gql`
 export const getStaticProps: GetStaticProps = async () => {
   const { data } = await client.query({ query: GET_POSTS });
 
+  const posts = data.posts.map((post) => {
+    return {
+      ...post,
+      publishedAt: new Date(post.publishedAt).toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      }),
+    };
+  });
+
   return {
-    props: data,
+    props: { posts },
   };
 };

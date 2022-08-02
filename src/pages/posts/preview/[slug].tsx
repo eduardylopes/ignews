@@ -4,7 +4,7 @@ import { RichText } from '@graphcms/rich-text-react-renderer';
 import Head from 'next/head';
 import { ElementNode } from '@graphcms/rich-text-types';
 import styles from '../post.module.scss';
-import { GetStaticProps } from 'next';
+import { GetStaticPaths, GetStaticProps } from 'next';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
@@ -19,12 +19,18 @@ interface PostPreviewProps {
   };
 }
 
-export const getStaticPaths = () => {
-  return {
-    paths: [],
-    fallback: 'blocking',
-  };
-};
+const GET_POST_BY_SLUG = gql`
+  query GetPostBySlug($slug: String) {
+    post(where: { slug: $slug }) {
+      publishedAt
+      slug
+      title
+      content {
+        raw
+      }
+    }
+  }
+`;
 
 export default function PostPreviewProps({ post }: PostPreviewProps) {
   const { data } = useSession();
@@ -59,18 +65,12 @@ export default function PostPreviewProps({ post }: PostPreviewProps) {
   );
 }
 
-const GET_POST_BY_SLUG = gql`
-  query GetPostBySlug($slug: String) {
-    post(where: { slug: $slug }) {
-      publishedAt
-      slug
-      title
-      content {
-        raw
-      }
-    }
-  }
-`;
+export const getStaticPaths: GetStaticPaths = () => {
+  return {
+    paths: [],
+    fallback: 'blocking',
+  };
+};
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
   const { slug } = params;
@@ -98,5 +98,6 @@ export const getStaticProps: GetStaticProps = async ({ params }) => {
 
   return {
     props: { post },
+    revalidate: 60 * 30, // 30 minutes
   };
 };
